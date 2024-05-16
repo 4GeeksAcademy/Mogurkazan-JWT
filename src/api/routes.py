@@ -28,6 +28,25 @@ def get_token():
     access_token = create_access_token(identity=email)
     return jsonify(access_token=access_token)
 
+@api.route("/signup", methods=["POST"])
+def create_user():
+    request_body= request.json
+    user_query= User.query.filter_by(email=request_body["email"]).first()
+    if user_query is None:
+        create_user = User(email=request_body["email"], password=request_body["password"], is_active=request_body["is_active"])
+        db.session.add(create_user)
+        db.session.commit()
+        response_body= {
+            "msg":"usuario creado con éxito"
+        }
+        return jsonify(response_body),200
+    else: 
+        response_body={
+            "msg":"usuario ya existe"
+        }
+        return jsonify(response_body),404
+
+
 # Allow CORS requests to this API
 CORS(api)
 
